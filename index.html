@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #cfeef0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        /* Header Section - Decorative Elements */
+        .header-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .header-section.fallback {
+            gap: 20px;
+        }
+
+        .letter-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 700;
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .letter-box:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* G - White text, black background */
+        .letter-g-large {
+            background-color: #000;
+            color: #FFFFFF;
+            font-weight: 700;
+            transform: rotate(-2deg);
+        }
+
+        /* U - Black text, white background */
+        .letter-u {
+            background-color: #FFFFFF;
+            color: #000;
+            border: 3px solid #000;
+            transform: rotate(-5deg);
+        }
+
+        /* E - White text, black background */
+        .letter-e {
+            background-color: #000;
+            color: #FFFFFF;
+            font-weight: 700;
+            transform: rotate(3deg);
+        }
+
+        /* S - Black text, white background */
+        .letter-s {
+            background-color: #FFFFFF;
+            color: #000;
+            border: 3px solid #000;
+            font-weight: 700;
+            transform: rotate(-2deg);
+        }
+
+        /* S - White text, black background */
+        .letter-s-brown {
+            background-color: #000;
+            color: #FFFFFF;
+            transform: rotate(2deg);
+        }
+
+        /* Input Section */
+        .input-section {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #guessInput {
+            flex: 1;
+            min-width: 280px;
+            padding: 18px 24px;
+            font-size: 18px;
+            border: 4px solid #000;
+            border-radius: 24px;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        #guessInput:focus {
+            outline: none;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(139, 46, 95, 0.1);
+        }
+
+        #guessInput::placeholder {
+            color: #999;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        #submitBtn {
+            background-color: #000;
+            color: #fff;
+            min-width: 140px;
+        }
+
+        #submitBtn:hover {
+            background-color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #submitBtn:active {
+            transform: translateY(0);
+        }
+
+        #resetBtn {
+            background-color: #fff;
+            color: #000;
+            border: 2px solid #000;
+            min-width: 140px;
+        }
+
+        #resetBtn:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        /* Output Section */
+        .output-section {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #output {
+            font-size: 24px;
+            font-weight: 600;
+            color: #000;
+            line-height: 1.4;
+        }
+
+        #output.higher {
+            color: #000;
+            font-weight: 700;
+            animation: slideIn 0.4s ease;
+        }
+
+        #output.lower {
+            color: #000;
+            font-weight: 700;
+            animation: slideIn 0.4s ease;
+        }
+
+        #output.win {
+            color: #000;
+            font-weight: 700;
+            font-size: 26px;
+            animation: popIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Instructions */
+        .instructions {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+            text-align: center;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .output-instruction {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            line-height: 1.6;
+            margin-top: 40px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-section {
+                gap: 12px;
+                margin-bottom: 10px;
+            }
+
+            .letter-box {
+                font-size: 36px;
+                width: 70px;
+                height: 70px;
+            }
+
+            .question-mark {
+                font-size: 48px;
+                width: 80px;
+                height: 80px;
+            }
+
+            #guessInput {
+                padding: 14px 18px;
+                font-size: 16px;
+            }
+
+            button {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            #output {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                gap: 20px;
+            }
+
+            .header-section {
+                gap: 8px;
+                margin-bottom: 5px;
+            }
+
+            .letter-box {
+                font-size: 28px;
+                width: 60px;
+                height: 60px;
+            }
+
+            .question-mark {
+                font-size: 36px;
+                width: 70px;
+                height: 70px;
+            }
+
+            #guessInput {
+                padding: 12px 16px;
+                font-size: 14px;
+                min-width: 100%;
+            }
+
+            button {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            #submitBtn, #resetBtn {
+                min-width: 100px;
+            }
+
+            #output {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section with GUESS spelled out -->
+        <div class="header-section" id="headerSection">
+            <div class="letter-box letter-g-large">G</div>
+            <div class="letter-box letter-u">U</div>
+            <div class="letter-box letter-e">E</div>
+            <div class="letter-box letter-s">S</div>
+            <div class="letter-box letter-s-brown">S</div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <div class="input-wrapper">
+                <input 
+                    type="number" 
+                    id="guessInput" 
+                    placeholder="enter your number..." 
+                    min="1" 
+                    max="100"
+                    autocomplete="off"
+                >
+            </div>
+            <div class="button-group">
+                <button id="submitBtn">Submit</button>
+                <button id="resetBtn">Reset Game</button>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="output-section">
+            <div id="output"></div>
+        </div>
+    </div>
+
+    <script>
+        // Parallax scroll effect on letter boxes
+        const letterBoxes = document.querySelectorAll('.letter-box');
+        
+        window.addEventListener('scroll', () => {
+            letterBoxes.forEach((box, index) => {
+                const offset = window.scrollY * (0.2 + index * 0.1);
+                box.style.transform = `translateY(${offset}px) ${box.classList.contains('letter-g-large') ? 'rotate(-2deg)' : box.classList.contains('letter-u') ? 'rotate(-5deg)' : box.classList.contains('letter-e') ? 'rotate(3deg)' : box.classList.contains('letter-s') && !box.classList.contains('letter-s-brown') ? 'rotate(-2deg)' : 'rotate(2deg)'}`;
+            });
+        });
+
+        let secretNumber = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+
+        const guessInput = document.getElementById('guessInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const output = document.getElementById('output');
+
+        function startNewGame() {
+            secretNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            guessInput.value = '';
+            output.textContent = '';
+            output.className = '';
+            guessInput.focus();
+            console.log('Secret number:', secretNumber); // For debugging
+        }
+
+        function submitGuess() {
+            const guess = parseInt(guessInput.value);
+
+            // Validation
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                output.textContent = 'Please enter a number between 1 and 100';
+                output.className = '';
+                return;
+            }
+
+            attempts++;
+
+            if (guess > secretNumber) {
+                output.textContent = 'GUESS LOWER';
+                output.className = 'lower';
+            } else if (guess < secretNumber) {
+                output.textContent = 'GUESS HIGHER';
+                output.className = 'higher';
+            } else {
+                output.textContent = `LESSGOO!!! CONGRATULATIONS!!! you got it in ${attempts} attempts`;
+                output.className = 'win';
+            }
+
+            guessInput.value = '';
+            guessInput.focus();
+        }
+
+        // Event Listeners
+        submitBtn.addEventListener('click', submitGuess);
+        resetBtn.addEventListener('click', startNewGame);
+
+        guessInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitGuess();
+            }
+        });
+
+        // Initialize
+        startNewGame();
+    </script>
+</body>
+</html>
